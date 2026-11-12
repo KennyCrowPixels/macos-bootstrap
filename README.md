@@ -64,13 +64,11 @@ From the top menu bar choose **Utilities → Terminal**.
 ### 5. Run the bootstrapper (one line)
 
 ```sh
-curl -sL <RAW-URL> | bash
+curl -sL https://raw.githubusercontent.com/KennyCrowPixels/macos-bootstrap/main/bootstrap.sh | bash
 ```
 
-Replace `<RAW-URL>` with your raw GitHub / Gist URL (see
-[Publishing](#publishing-so-you-get-a-short-raw-url) below). Follow the
-prompts: enter a username, full name, and password (or just press **Enter**
-three times to accept the defaults).
+Follow the prompts: enter a username, full name, and password (or just press
+**Enter** three times to accept the defaults).
 
 > Tip: if typing a long URL is painful, use a URL shortener or a Gist whose
 > raw URL you can shorten. See below.
