@@ -44,6 +44,12 @@ if [ "$(id -u)" -ne 0 ]; then
     die "This script must run as root. In Recovery Terminal you already are; otherwise re-run with sudo."
 fi
 
+# Interactive prompts read from /dev/tty so the script also works when invoked
+# via `curl ... | bash` (where stdin is the pipe, not the keyboard).
+if [ ! -r /dev/tty ]; then
+    die "No terminal available for prompts. Run the script directly, e.g.: bash bootstrap.sh"
+fi
+
 # ---------------------------------------------------------------------------
 # 1. Detect the mounted writable Data volume
 # ---------------------------------------------------------------------------
@@ -60,7 +66,7 @@ if [ -z "$DATA_VOL" ]; then
     info "Volumes currently mounted:"
     ls -1 /Volumes 2>/dev/null | sed 's/^/      - /'
     printf '%sEnter the full path to your Data volume (e.g. /Volumes/YourName - Data): %s' "$C_INFO" "$C_RESET"
-    read -r DATA_VOL
+    read -r DATA_VOL </dev/tty
     DATA_VOL="${DATA_VOL%/}"
 fi
 
@@ -85,20 +91,20 @@ printf '\n'
 info "New administrator account details (press Enter to accept defaults)."
 
 printf '%sUsername  [admin]: %s' "$C_INFO" "$C_RESET"
-read -r username
+read -r username </dev/tty
 [ -n "$username" ] || username="admin"
 
 printf '%sFull name [Administrator]: %s' "$C_INFO" "$C_RESET"
-read -r full_name
+read -r full_name </dev/tty
 [ -n "$full_name" ] || full_name="Administrator"
 
 # Read password without echo; confirm it.
 password=""
 while :; do
     printf '%sPassword  [password]: %s' "$C_INFO" "$C_RESET"
-    stty -echo 2>/dev/null
-    read -r password
-    stty echo 2>/dev/null
+    stty -echo </dev/tty 2>/dev/null
+    read -r password </dev/tty
+    stty echo </dev/tty 2>/dev/null
     printf '\n'
 
     if [ -z "$password" ]; then
@@ -108,9 +114,9 @@ while :; do
     fi
 
     printf '%sConfirm password: %s' "$C_INFO" "$C_RESET"
-    stty -echo 2>/dev/null
-    read -r password_confirm
-    stty echo 2>/dev/null
+    stty -echo </dev/tty 2>/dev/null
+    read -r password_confirm </dev/tty
+    stty echo </dev/tty 2>/dev/null
     printf '\n'
 
     if [ "$password" = "$password_confirm" ]; then
@@ -135,7 +141,7 @@ printf '      UID/GID  : 501 / 20 (admin)\n'
 printf '      shell    : /bin/zsh\n'
 printf '      home     : /Users/%s  (on %s)\n' "$username" "$DATA_VOL"
 printf '%sProceed? [y/N]: %s' "$C_WARN" "$C_RESET"
-read -r confirm
+read -r confirm </dev/tty
 case "$confirm" in
     y|Y|yes|YES) ;;
     *) die "Aborted by user." ;;
